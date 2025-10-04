@@ -1,0 +1,16 @@
+{
+	"manifest_version":3,
+	"name": ""
+	"version": "1.0.0",
+	"description": ""
+	"icons": {
+
+	},
+
+	"permissions": ["scripting", "activeTab"],
+	"content_scripts": [
+		{
+			"js": ["content-script.js"]
+		}
+	]
+}
