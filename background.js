@@ -34,8 +34,14 @@ const cleanUp = async() =>{
 	for (let i = 0; i < document.body.children.length; i++){ // still buggy
 			document.body.children[i].style.display = ''
 	}
+	document.body.children[0].remove()
 	return;
 }
+
+const wrong = async(response) =>{
+	document.body.children[0].remove()
+}
+
 
 
 const block = async(question) => {
@@ -51,6 +57,11 @@ const block = async(question) => {
 	pop.innerHTML = "<p>"+question+"</p>"
 	document.body.prepend(pop)
 	pop.style.textAlign="center"
+	pop.style.colour="#0b2042"
+	pop.style.marginTop = "20px";
+	pop.style.fontSize="18px"
+
+
 
 	const text = document.createElement("input")
 	text.setAttribute("type", "text")
@@ -147,7 +158,12 @@ async function verifyAnswer(grade, response){
 				function: cleanUp
 			})
 		} else {
-				getAnswer(response);
+				getAnswer(response)
+				chrome.scripting.executeScript({ //waiting for injectionresults to actually contain a value
+				target: {"tabId":tab.id},
+				function: wrong,
+				args: [response]
+			})
 			// const explanation = await ai.models.generateContent({
 				// model: "gemini-2.5-flash",
 				// contents: "Given the question: " + response.text +  "the student gave the answer: " + message + ". In no more than 200 words, describe chiefly where the student went wrong and what the correct answer was.",
