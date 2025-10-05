@@ -1,9 +1,5 @@
 // function to get tab id, cause script needs it, got it from deve docs
-async function getTabId(){
-	let queryOptions = {active:true, lastFocusedWindow:true};
-	let [tab] = await chrome.tabs.query(queryOptions);
-	return tab;
-}
+
 
 const urls = [
 	"*://*.instagram.com/"
@@ -12,6 +8,9 @@ const urls = [
 let time = Date.now();
 const interval = 60000;
 
+function activeInfo(){
+	console.log("why")
+}
 const trackTime = async () => {
 	if ((Date.now() - time) >= interval) { //over the interval time
 		time = Date.now()
@@ -30,9 +29,6 @@ const trackTime = async () => {
 //check if tab switched, reset track time, run function
 //chrome.tabs.onActivated.addListener(function(activeInfo){
 //	time = Date.now();
-function activeInfo(){
-	console.log("why")
-}
 //})
 
 //focus lost, stop program

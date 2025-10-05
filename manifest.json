@@ -7,13 +7,13 @@
 
 	},
 
-	"permissions": ["tabs", "scripting", "activeTab"],
-	"content_scripts": [
-		{
-			"matches": ["*://*.instagram.com/*"],
-			"js": ["content-script.js"]
-		}
+	"host_permissions":[
+		"<all_urls>",
+		"*://*.instagram.com/*"
+
 	],
+	"permissions": ["tabs", "scripting", "activeTab"],
+
 	"background": {
         "service_worker": "background.js"
     }
