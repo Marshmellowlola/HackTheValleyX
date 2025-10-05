@@ -26,38 +26,45 @@ function stopTime(timer){
 	clearInterval(timer)
 }
 
-const answer = async() =>{
+const cleanUp = async() =>{
 	console.log("working")
 }
 const block = async(question) => {
 	// generate question using ai
 	// add question onto site
 	for (let i = 0; i < document.body.children.length; i++){
+		//make a list of not displayed (keep undisplayed)
 		document.body.children[i].style.display = 'none'
 	}
 	document.body.style.display = "block"
 
 	const pop = document.createElement("div")
-	pop.innerHTML = "<p>"+question+"</p><input type='text' name='answer'style='background-color: #FCF5D8; color: #AD8C08'></input>"
+	pop.innerHTML = "<p>"+question+"</p>"
 	document.body.prepend(pop)
+
+	const text = document.createElement("input")
+	text.setAttribute("type", "text")
+	text.setAttribute("name", "answer")
+	text.style.backgroundColor = "#FCF5D8"
+	text.style.color = "#AD8C08"
+	pop.append(text)
 
 	const button = document.createElement("button")
 	button.textContent = "Submit"
 	pop.append(button)
-	button.addEventListener("click", function(){
-		console.log("working")
+	const p = new Promise((resolve) => {
+		button.addEventListener("click", function(){
+			resolve(text.value) // brings smth back
+			console.log("working")
+		}, {once: true})//idk if needed
 	})
-
-	const styleSheet = document.styleSheets[0]
-
-
-	//console.log('html::before { content: "'+ question +'"; } ')
-	//styleSheet.insertRule('html::before { content:"'+ question +'"; } ', styleSheet.cssRules.length)
-
-	startTime()
+	console.log("ended")
+	return (p);
 }
 
 async function trackTime(){
+	let message = "";
+
 	if ((Date.now() - time) >= interval) { //over the interval time
 		time = Date.now()
 		console.log("question now");
@@ -70,28 +77,57 @@ async function trackTime(){
 		const ai = new GoogleGenAI({apiKey: key});
 		const response = await ai.models.generateContent({
 			model: "gemini-2.5-flash",
-			contents: "Explain how AI works in a few words", // ask a question about...
+			contents: "Only give one question. It can from one of the following categories for high school levels: math, english, or science. Only give the necessary information to solve the problem, be concise and formal. NO SUBJECTIVE QUESTIONS. There is no formatting", // ask a question about...
 			config: {
-			  systemInstruction: "You are a cat. Your name is Neko.", // change
+			  systemInstruction: "You are a high school tutorer who poses questions that can be solved under a minute. You talk professtionally and concisely. Each question is written with only the necessary information", // change
 			},
 		});
 		console.log(response.text);
 
 		//generative stuff
-		chrome.scripting.executeScript({
+		const injectionResults = await chrome.scripting.executeScript({ //waiting for injectionresults to actually contain a value
 			target: {"tabId":tab.id},
 			function: block,
 			args: [response.text]
 			//files: ["block.js"],
 		})
 
-		// keep in while loop
+		for (const guess of injectionResults){
+			const {result} = guess
+			console.log(result)//
+			message = result
+		}
 
-		//start time again
+		const grade = await ai.models.generateContent({
+			model: "gemini-2.5-flash",
+			contents: "Given the question: " + response.text +  "is the answer: " + message + " a correct answer. You are only allowed to answer either yes or no",
+			config: {
+			  systemInstruction: "You are a simple answer checker STRICTLY responding with either yes or no.",
+			},
+		});
+		console.log(grade.text);//
+
+		if (grade.text === "yes") {
+			startTimer();
+			chrome.scripting.executeScript({ //waiting for injectionresults to actually contain a value
+				target: {"tabId":tab.id},
+				function: cleanUp
+			})
+		} else {
+			//generate explication
+			// const = await chrome.scripting.executeScript({ //waiting for injectionresults to actually contain a value
+			// target: {"tabId":tab.id},
+			// function: watchVideo
+			}
+		//if correct
+			// for (let i = 0; i < document.body.children.length; i++){
+				// document.body.children[i].style.display = 'block'
+			// }
+			//escape from namespace back to extension
+
+		//else
+			//voice over explaining it
 	}
-	console.log("free time")
 }
-
-
 
 chrome.tabs.onActivated.addListener(()=>startTime())
