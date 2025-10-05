@@ -26,13 +26,33 @@ function stopTime(timer){
 	clearInterval(timer)
 }
 
+const answer = async() =>{
+	console.log("working")
+}
 const block = async(question) => {
 	// generate question using ai
 	// add question onto site
-	document.body.style.display = "none"
+	for (let i = 0; i < document.body.children.length; i++){
+		document.body.children[i].style.display = 'none'
+	}
+	document.body.style.display = "block"
+
+	const pop = document.createElement("div")
+	pop.innerHTML = "<p>"+question+"</p><input type='text' name='answer'style='background-color: #FCF5D8; color: #AD8C08'></input>"
+	document.body.prepend(pop)
+
+	const button = document.createElement("button")
+	button.textContent = "Submit"
+	pop.append(button)
+	button.addEventListener("click", function(){
+		console.log("working")
+	})
+
 	const styleSheet = document.styleSheets[0]
-	console.log('html::before { content: "'+ question +'"; } ')
-	styleSheet.insertRule('html::before { content:"'+ question +'"; } ', styleSheet.cssRules.length)
+
+
+	//console.log('html::before { content: "'+ question +'"; } ')
+	//styleSheet.insertRule('html::before { content:"'+ question +'"; } ', styleSheet.cssRules.length)
 
 	startTime()
 }
